@@ -27,10 +27,27 @@ router.post('/', (req, res) => {
     .catch(err => sendServerError(res, undefined, err));
 });
 
-router.get('/hello_world', (req, res) => {
-  var text = "Hello from Meetup SMS!"
-  twilioService.sendTextMessage(text, '+18606904954');
-  res.send(text);
+router.post('/get_message', (req, res) => {
+  if (!req.body.Body) {
+    console.error('Received request without Body message');
+  } else if (!req.body.From) {
+    console.error('Received request without From phone number');
+  } else {
+    console.log(`Replying to request [ ${req.body.Body} ] from ${req.body.From} ...`);
+    twilioService.sendTextMessage(`Re: ${req.body.Body}`, req.body.From);
+    console.log(`Reply sent to ${req.body.From}.`);
+  }
+});
+
+router.get('/send_message', (req, res) => {
+  if (!req.body.text) {
+    sendServerError(HttpStatus.BAD_REQUEST,
+      "Must specify 'textMessage' post param");
+    return;
+  }
+
+  twilioService.sendTextMessage(req.body.text, '+18606904954');
+  res.send(req.body.text);
 });
 
 module.exports = router;
