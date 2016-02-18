@@ -16,3 +16,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`app started on port: ${port}`);
 }); 
+
+app.use(require('./controllers'));
