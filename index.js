@@ -4,9 +4,14 @@
 const express = require('express');
 const app = express();
 const rp = require('request-promise');
+const bodyParser = require('body-parser');
 
 const port = 3000;
 const Secrets = require('./config');
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.text());
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   rp('http://www.google.com')
