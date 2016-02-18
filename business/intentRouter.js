@@ -55,6 +55,8 @@ const intentRouter = {
     const intent = outcome.intent;
     if (intent === intents.NEARBY_EVENTS) {
       return intentRouter.nearbyEventsIntent(outcome.entities);
+    } else if (intent === intents.ZIP) {
+      return intentRouter.zipIntent(outcome.entities); 
     } else {
       return new Message("Hi I don't know what you're saying");
     }
@@ -64,8 +66,22 @@ const intentRouter = {
   //nearby events is dumb. It just responds by asking for your zip code
   nearbyEventsIntent: () => {
     return new Promise((resolve, reject) => {
-      console.log("hiyoo");
       resolve(new Message("Where might you be good person?"));
+    });
+  },
+
+  //a zip code intent
+  zipIntent: (entities) => {
+    return new Promise((resolve, reject) => {
+      const loc = entities.location;
+      if (!loc) {
+        return reject(new Message('Darn. Could not understand your zip code')); 
+      }
+
+      //let's just grab the first zip code we find 
+      const zipCode = loc[0].value; 
+      
+      resolve(new Message(`Nice. Here's your zipcode ${zipCode}`));
     });
   }
 
