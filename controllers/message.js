@@ -15,6 +15,9 @@ const Secrets = require('../config');
 const witService = require('../services/witService');
 const twilioService = require('../services/twilioService');
 
+//biz
+const intentRouter = require('../business/intentRouter'); 
+
 router.post('/', (req, res) => {
   if (!req.body.text) {
     sendServerError(HttpStatus.BAD_REQUEST, 
@@ -23,7 +26,9 @@ router.post('/', (req, res) => {
   }
 
   witService.getIntent(req.body.text)
-    .then(result => sendSuccess(res, result))
+    .then(result => intentRouter.getIntent(result))
+    .then(outcomes => intentRouter.processOutcomes(outcomes))
+    .then(message => sendSuccess(res, message.text))
     .catch(err => sendServerError(res, undefined, err));
 });
 
