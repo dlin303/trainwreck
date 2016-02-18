@@ -36,7 +36,7 @@ app.listen(port, () => {
     console.error('Twilio Sender Number not set');
   }
 
-  console.log(`app started on port: ${port}`);
+  console.log(`App started on port: ${port}`);
 }); 
 
 app.use(require('./controllers'));
