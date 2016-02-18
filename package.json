@@ -1,0 +1,23 @@
+{
+  "name": "trainwreck",
+  "version": "1.0.0",
+  "description": "hai",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --harmony-destructuring index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dlin303/trainwreck.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dlin303/trainwreck/issues"
+  },
+  "homepage": "https://github.com/dlin303/trainwreck#readme",
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}
