@@ -6,6 +6,7 @@ const app = express();
 const rp = require('request-promise');
 
 const port = 3000;
+const Secrets = require('./config');
 
 app.get('/', (req, res) => {
   rp('http://www.google.com')
@@ -14,6 +15,9 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
+  if (!Secrets.WIT_ACCESS_TOKEN) {
+    console.log('Wit access token not set');
+  }
   console.log(`app started on port: ${port}`);
 }); 
 
