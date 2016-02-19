@@ -21,7 +21,7 @@ const meetupService = {
 
   findEvents: (zip) => {
     const options = {
-      uri: 'http://api.dev.meetup.com/2/concierge',
+      uri: 'http://api.dev.meetup.com/2/open_events',
       qs: {
         key: MEETUP_ACCESS_TOKEN,
         sign: 'true',
