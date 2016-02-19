@@ -94,7 +94,7 @@ const intentRouter = {
 
   //a zip code intent
   zipGroupIntent: (entities, opts) => {
-    const loc = entities.location;
+    const loc = entities.number;
     if (!loc) {
       return Promise.reject(new Message('Darn. Could not understand your zip code')); 
     }
