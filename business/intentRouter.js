@@ -50,20 +50,20 @@ const intentRouter = {
   /**
    * Right now this is just a dumb wrapper to deal with the fact that we can have multiple 
    */
-  processOutcomes: (outcomes) => {
-    return intentRouter.processIntent(outcomes[0]);  
+  processOutcomes: (outcomes, opts) => {
+    return intentRouter.processIntent(outcomes[0], opts);  
   },
 
   /**
    * Processes a single outcome and it's entities.
    */
-  processIntent: (outcome) => {
+  processIntent: (outcome, opts) => {
     console.log(util.inspect(outcome, false, null));
     const intent = outcome.intent;
     if (intent === intents.NEARBY_EVENTS) {
-      return intentRouter.nearbyEventsIntent(outcome.entities);
+      return intentRouter.nearbyEventsIntent(outcome.entities, opts);
     } else if (intent === intents.ZIP_GROUPS) {
-      return intentRouter.zipGroupIntent(outcome.entities);
+      return intentRouter.zipGroupIntent(outcome.entities, opts);
     } else if (intent === intents.ZIP_GROUP) {
       return intentRouter.zipGroupIntent(outcome.entities, { single: true }); 
     } else {
@@ -73,7 +73,13 @@ const intentRouter = {
 
 
   //nearby events is dumb. It just responds by asking for your zip code
-  nearbyEventsIntent: (entities) => {
+  nearbyEventsIntent: (entities, opts) => {
+    if (opts && opts.phone) {
+      //do stuff here
+      console.log("phone number", opts.phone);
+    }
+
+
     const loc = entities.number;
     if (!loc) {
       return Promise.resolve(new Message('Did you forget to provide a zip code?'));
