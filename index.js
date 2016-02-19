@@ -36,6 +36,10 @@ app.listen(port, () => {
     console.error('Twilio Sender Number not set');
   }
 
+  if (!Secrets.MEETUP_TOKEN) {
+    console.error('Meetup Token not set');
+  }
+
   console.log(`App started on port: ${port}`);
 }); 
 
