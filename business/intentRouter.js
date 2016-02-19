@@ -108,13 +108,14 @@ const intentRouter = {
     return meetupService.findGroups(zipCode)
       .then(data => {
         var savedGroup = data[0];
-        db.upsertUserInfo(opts.phone, undefined, undefined, undefined savedGroup.id);
+        db.upsertUserInfo(opts.phone, undefined, undefined, undefined, savedGroup.id);
         return intentRouter._groupToMessage(data, opts);
       });
   },
 
   //rsvp person to the last known eventId
   rsvp: (phone) => {
+    let userInfoYay;
     return new Promise((resolve, reject) => {
       db.UserInfo.findOne({number: phone}, function(err, userInfo) {
         if (err) return reject(err);
@@ -122,9 +123,13 @@ const intentRouter = {
       });
     }).then(userInfo => {
       console.log("found user info", userInfo);
+      userInfoYay = userInfo;
       meetupService.rsvp(userInfo);
     })
-     .then(() => new Message("You've RSVP'd!"));
+     .then(() => {
+        const date = new Date(userInfoYay.lastEventTime); 
+        return new Message(`You've RSVP'd to ${userInfoYay.lastEventName} starting at ${date}`);
+      });
   },
 
   //for now just return 1 group
