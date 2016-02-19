@@ -57,7 +57,7 @@ router.post('/get_message', (req, res) => {
 
 router.get('/send_message', (req, res) => {
   if (!req.body.text) {
-    sendServerError(HttpStatus.BAD_REQUEST,
+    sendServerError(res, HttpStatus.BAD_REQUEST,
       "Must specify 'textMessage' post param");
     return;
   }
