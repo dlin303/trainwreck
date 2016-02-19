@@ -41,24 +41,23 @@ router.post('/get_message', (req, res) => {
   } else if (!req.body.From) {
     console.error('Received request without From phone number');
   } else {
-    console.log(`Replying to request [ ${req.body.Body} ] from ${req.body.From} ...`);
-
     getReplyMessage(req.body.Body)
-      .then(message =>
-        twilioService.sendTextMessage(message.text, req.body.From)
+      .then(message => {
+          console.log(`Replying to request [ ${req.body.Body} ] from ${req.body.From} with [ ${message.text} ] ...`);
+          twilioService.sendTextMessage(message.text, req.body.From);
+          console.log(`Reply sent to ${req.body.From}.`);
+        }
       )
       .catch(err => 
         console.error(`Error received from processing [ ${req.body.Body} ] from ${req.body.From}`)
       );
-
-    console.log(`Reply sent to ${req.body.From}.`);
   }
 });
 
 router.get('/send_message', (req, res) => {
   if (!req.body.text) {
     sendServerError(res, HttpStatus.BAD_REQUEST,
-      "Must specify 'textMessage' post param");
+      "Must specify 'text' post param");
     return;
   }
 

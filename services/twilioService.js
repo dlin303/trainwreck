@@ -12,7 +12,7 @@ const twilioService = {
   	twilioClient.messages.create({
   		to: recipientNumber,
   		from: Secrets.TWILIO_SENDER_NUMBER,
-  		body: textMessage,
+  		body: ":)\n\n" + textMessage,
   	}, function(err, message) {
   		console.log(message.sid);
   	});
