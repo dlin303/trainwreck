@@ -61,7 +61,10 @@ const intentRouter = {
   processIntent: (outcome, opts) => {
     console.log(util.inspect(outcome, false, null));
     const intent = outcome.intent;
-    if (intent === intents.NEARBY_EVENTS) {
+    const confidence = outcome.confidence;
+    if (confidence < 0.4) {
+      return new Message('wut'); 
+    } else if (intent === intents.NEARBY_EVENTS) {
       return intentRouter.nearbyEventsIntent(outcome.entities, opts);
     } else if (intent === intents.ZIP_GROUPS) {
       return intentRouter.zipGroupIntent(outcome.entities, opts);
@@ -70,7 +73,7 @@ const intentRouter = {
     } else if (intent === intents.RSVP) {
       return intentRouter.rsvp(opts.phone);
     } else {
-      return new Message("Hi I don't know what you're saying");
+      return new Message("Hello");
     }
   },
 
