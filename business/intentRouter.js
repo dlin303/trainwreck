@@ -92,7 +92,7 @@ const intentRouter = {
       .then(data => {
         const rsvpableEvent = intentRouter.filterEvents(data.results);
         console.log('EVENTID', rsvpableEvent);
-        db.upsertUserInfo(opts.phone, rsvpableEvent.id);
+        db.upsertUserInfo(opts.phone, rsvpableEvent.id, rsvpableEvent.name, rsvpableEvent.time);
         return intentRouter._eventsToMessage(rsvpableEvent);
       });
   },
@@ -108,7 +108,7 @@ const intentRouter = {
     return meetupService.findGroups(zipCode)
       .then(data => {
         var savedGroup = data[0];
-        db.upsertUserInfo(opts.phone, null, savedGroup.id);
+        db.upsertUserInfo(opts.phone, undefined, undefined, undefined savedGroup.id);
         return intentRouter._groupToMessage(data, opts);
       });
   },
@@ -121,7 +121,7 @@ const intentRouter = {
         resolve(userInfo);
       });
     }).then(userInfo => {
-      console.log("found user info", userInfo); 
+      console.log("found user info", userInfo);
       meetupService.rsvp(userInfo);
     })
      .then(() => new Message("You've RSVP'd!"));

@@ -7,12 +7,14 @@ const db = mongoose.connection;
 const userInfoSchema = mongoose.Schema({
   number: String,
   lastEventId: String,
+  lastEventName: String,
+  lastEventTime: String,
   lastGroupId: String
 });
 
 const UserInfo = mongoose.model('UserInfo', userInfoSchema);
 
-const upsertUserInfo = function(number, lastEventId, lastGroupId) {
+const upsertUserInfo = function(number, lastEventId, lastEventName, lastEventTime, lastGroupId) {
   var testUserInfo = new UserInfo({ number: '5556', lastEventId: '123456', lastGroupId: '098765' });
   UserInfo.findOne({number: number}, function(err, userInfo) {
     if(!err) {
@@ -23,6 +25,12 @@ const upsertUserInfo = function(number, lastEventId, lastGroupId) {
 
         if (lastEventId !== undefined) {
           userInfo.lastEventId = lastEventId;
+        }
+        if (lastEventName !== undefined) {
+          userInfo.lastEventName = lastEventName;
+        }
+        if (lastEventTime !== undefined) {
+          userInfo.lastEventTime = lastEventTime;
         }
         if (lastGroupId !== undefined) {
           userInfo.lastGroupId = lastGroupId;
