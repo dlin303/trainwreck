@@ -66,6 +66,8 @@ const intentRouter = {
       return intentRouter.zipGroupIntent(outcome.entities, opts);
     } else if (intent === intents.ZIP_GROUP) {
       return intentRouter.zipGroupIntent(outcome.entities, { single: true }); 
+    } else if (intent === intents.RSVP) {
+      return intentRouter.rsvp();
     } else {
       return new Message("Hi I don't know what you're saying");
     }
@@ -102,6 +104,13 @@ const intentRouter = {
     const zipCode = loc[0].value; 
     return meetupService.findGroups(zipCode)
       .then(data => intentRouter._groupToMessage(data, opts));
+  },
+
+  //rsvp person to the last known eventId
+  rsvp: () => {
+    const dummyUserInfo = { lastEventId: 227316958 };
+    return meetupService.rsvp(dummyUserInfo)
+      .then(() => new Message("You've RSVP'd!"));
   },
 
   //for now just return 1 group

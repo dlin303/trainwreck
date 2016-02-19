@@ -38,7 +38,8 @@ const meetupService = {
   rsvp: (userInfo) => {
     const options = {
       uri: 'http://api.dev.meetup.com/2/rsvp',
-      qs: {
+      method: 'POST',
+      body: {
         key: MEETUP_ACCESS_TOKEN,
         sign: 'true',
         event_id: userInfo.lastEventId,
@@ -47,6 +48,8 @@ const meetupService = {
 
       json: true
     };
+
+    console.log(options);
 
     return rp(options).promise();
   }
