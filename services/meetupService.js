@@ -25,11 +25,31 @@ const meetupService = {
       qs: {
         key: MEETUP_ACCESS_TOKEN,
         sign: 'true',
-        zip
+        zip,
+        fields: 'rsvpable'
       },
 
       json: true
     };
+
+    return rp(options).promise();
+  },
+
+  rsvp: (userInfo) => {
+    const options = {
+      uri: 'http://api.dev.meetup.com/2/rsvp',
+      method: 'POST',
+      body: {
+        key: MEETUP_ACCESS_TOKEN,
+        sign: 'true',
+        event_id: userInfo.lastEventId,
+        rsvp: "yes"
+      },
+
+      json: true
+    };
+
+    console.log(options);
 
     return rp(options).promise();
   }
