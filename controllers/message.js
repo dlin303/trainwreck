@@ -9,8 +9,6 @@ const HttpStatus = require('../util/HttpStatus');
 const sendServerError = require('../util/sendServerError');
 const sendSuccess = require('../util/sendSuccess');
 
-const Secrets = require('../config');
-
 //services
 const witService = require('../services/witService');
 const twilioService = require('../services/twilioService');
@@ -21,7 +19,7 @@ const intentRouter = require('../business/intentRouter');
 function getReplyMessage(textMessage) {
   return witService.getIntent(textMessage)
     .then(result => intentRouter.getIntent(result))
-    .then(outcomes => intentRouter.processOutcomes(outcomes))
+    .then(outcomes => intentRouter.processOutcomes(outcomes));
 }
 
 

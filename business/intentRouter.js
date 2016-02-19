@@ -8,6 +8,9 @@ const intents = require('./intents');
 const HttpStatus = require('../util/Httpstatus');
 const Err = require('../util/Err');
 const Message = require('../util/Message');
+
+//services
+const meetupService = require('../services/meetupService');
 /**
 example wit response.
 entities can sometimes be an empty object
@@ -72,17 +75,23 @@ const intentRouter = {
 
   //a zip code intent
   zipIntent: (entities) => {
-    return new Promise((resolve, reject) => {
-      const loc = entities.location;
-      if (!loc) {
-        return reject(new Message('Darn. Could not understand your zip code')); 
-      }
+    const loc = entities.location;
+    if (!loc) {
+      return Promise.reject(new Message('Darn. Could not understand your zip code')); 
+    }
 
-      //let's just grab the first zip code we find 
-      const zipCode = loc[0].value; 
-      
-      resolve(new Message(`Nice. Here's your zipcode ${zipCode}`));
-    });
+    //let's just grab the first zip code we find 
+    const zipCode = loc[0].value; 
+    return meetupService.getIntent(zipCode)
+      .then(data => intentRouter._groupToMessage(data));
+  },
+
+  _groupToMessage: (groupsList) => {
+    const text = groupsList
+      .map(g => g.name)
+      .join("\n"); 
+
+    return new Message(text);
   }
 
 };
