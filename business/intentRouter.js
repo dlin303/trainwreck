@@ -10,6 +10,7 @@ const intents = require('./intents');
 const HttpStatus = require('../util/Httpstatus');
 const Err = require('../util/Err');
 const Message = require('../util/Message');
+const db = require('../db');
 
 //services
 const meetupService = require('../services/meetupService');
@@ -39,19 +40,19 @@ const intentRouter = {
   getIntent: (witResponse) => {
     return new Promise((resolve, reject) => {
       if (!witResponse || witResponse.outcomes.length === 0) {
-        return reject(new Err(HttpStatus.INTERNAL_SERVER_ERROR, 
+        return reject(new Err(HttpStatus.INTERNAL_SERVER_ERROR,
           'No wit response outcomes'));
       }
-      
+
       resolve(witResponse.outcomes);
     });
   },
 
   /**
-   * Right now this is just a dumb wrapper to deal with the fact that we can have multiple 
+   * Right now this is just a dumb wrapper to deal with the fact that we can have multiple
    */
   processOutcomes: (outcomes, opts) => {
-    return intentRouter.processIntent(outcomes[0], opts);  
+    return intentRouter.processIntent(outcomes[0], opts);
   },
 
   /**
@@ -65,7 +66,7 @@ const intentRouter = {
     } else if (intent === intents.ZIP_GROUPS) {
       return intentRouter.zipGroupIntent(outcome.entities, opts);
     } else if (intent === intents.ZIP_GROUP) {
-      return intentRouter.zipGroupIntent(outcome.entities, { single: true }); 
+      return intentRouter.zipGroupIntent(outcome.entities, { single: true });
     } else if (intent === intents.RSVP) {
       return intentRouter.rsvp();
     } else {
@@ -86,24 +87,29 @@ const intentRouter = {
       return Promise.resolve(new Message('Did you forget to provide a zip code?'));
     }
 
-    const zipCode = loc[0].value; 
+    const zipCode = loc[0].value;
     return meetupService.findEvents(zipCode)
       .then(data => {
         const rsvpableEvent = intentRouter.filterEvents(data.results);
-        return intentRouter._eventsToMessage(rsvpableEvent);
+        upsertUserInfo(opts.phone, rsvpableEvent.id);
+        return intentRouter._eventsToMessage(rsvpableEvent.id);
       });
   },
 
   zipGroupIntent: (entities, opts) => {
     const loc = entities.number;
     if (!loc) {
-      return Promise.reject(new Message('Darn. Could not understand your zip code')); 
+      return Promise.reject(new Message('Darn. Could not understand your zip code'));
     }
 
-    //let's just grab the first zip code we find 
-    const zipCode = loc[0].value; 
+    //let's just grab the first zip code we find
+    const zipCode = loc[0].value;
     return meetupService.findGroups(zipCode)
-      .then(data => intentRouter._groupToMessage(data, opts));
+      .then(data => {
+        var savedGroup = data[0];
+        upsertUserInfo(opts.phone, null, savedGroup.id);
+        return intentRouter._groupToMessage(data, opts)
+      });
   },
 
   //rsvp person to the last known eventId
@@ -121,7 +127,7 @@ const intentRouter = {
     }
 
     const groups = groupsList
-      .map(g => g.name) 
+      .map(g => g.name)
       .join("\n\n");
 
     return new Message(groups);
@@ -129,7 +135,7 @@ const intentRouter = {
 
   _eventsToMessage: (event) => {
     return new Message(event.name);
-  }, 
+  },
 
   filterEvents: (eventsList) => {
     return _.find(eventsList, (e) => { return e.rsvpable; });

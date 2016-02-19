@@ -1,8 +1,8 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost/stored_states');
 
-var db = mongoose.connection;
+const db = mongoose.connection;
 
 const userInfoSchema = mongoose.Schema({
   number: String,
@@ -44,3 +44,5 @@ db.once('open', function() {
   // we're connected!
   console.log("connected to db");
 });
+
+module.exports = {UserInfo, upsertUserInfo};
