@@ -3,7 +3,7 @@
 //3rd
 const Promise = require('bluebird');
 const util = require('util');
-const _ = require('underscore');
+//const _ = require('underscore');
 
 //util
 const intents = require('./intents');
@@ -154,7 +154,9 @@ const intentRouter = {
   },
 
   filterEvents: (eventsList) => {
-    return _.find(eventsList, (e) => { return e.rsvpable; });
+    const randomIndex = Math.floor(Math.random() * eventsList.length);
+    return eventsList[randomIndex];
+    //return _.find(eventsList, (e) => { return e.rsvpable; });
   }
 
 };
