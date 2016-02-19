@@ -30,7 +30,7 @@ const upsertUserInfo = function(number, lastEventId, lastEventName, lastEventTim
           userInfo.lastEventName = lastEventName;
         }
         if (lastEventTime !== undefined) {
-          userInfo.lastEventTime = lastEventTime;
+          userInfo.lastEventTime = new Date(lastEventTime).toString();
         }
         if (lastGroupId !== undefined) {
           userInfo.lastGroupId = lastGroupId;
