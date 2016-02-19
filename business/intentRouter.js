@@ -68,7 +68,7 @@ const intentRouter = {
     } else if (intent === intents.ZIP_GROUP) {
       return intentRouter.zipGroupIntent(outcome.entities, { single: true });
     } else if (intent === intents.RSVP) {
-      return intentRouter.rsvp();
+      return intentRouter.rsvp(opts.phone);
     } else {
       return new Message("Hi I don't know what you're saying");
     }
@@ -113,10 +113,13 @@ const intentRouter = {
   },
 
   //rsvp person to the last known eventId
-  rsvp: () => {
-    const dummyUserInfo = { lastEventId: 227316958 };
-    return meetupService.rsvp(dummyUserInfo)
-      .then(() => new Message("You've RSVP'd!"));
+  rsvp: (phone) => {
+    return new Promise((resolve, reject) => {
+      UserInfo.findOne({number: phone}, function(err, userInfo) {
+        if (err) return reject(err);
+        resolve(data);
+      })}).then(userInfo => meetupService.rsvp(userInfo))
+        .then(() => new Message("You've RSVP'd!"));
   },
 
   //for now just return 1 group
