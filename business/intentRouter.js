@@ -2,6 +2,7 @@
 
 //3rd
 const Promise = require('bluebird');
+const util = require('util');
 
 //util
 const intents = require('./intents');
@@ -32,6 +33,8 @@ entities can sometimes be an empty object
   }]
 }
 */
+
+let thing_id;
 const intentRouter = {
   getIntent: (witResponse) => {
     return new Promise((resolve, reject) => {
@@ -55,12 +58,14 @@ const intentRouter = {
    * Processes a single outcome and it's entities.
    */
   processIntent: (outcome) => {
-    console.log(outcome);
+    console.log(util.inspect(outcome, false, null));
     const intent = outcome.intent;
     if (intent === intents.NEARBY_EVENTS) {
       return intentRouter.nearbyEventsIntent(outcome.entities);
-    } else if (intent === intents.ZIP) {
-      return intentRouter.zipIntent(outcome.entities); 
+    } else if (intent === intents.ZIP_GROUPS) {
+      return intentRouter.zipGroupIntent(outcome.entities);
+    } else if (intent === intents.ZIP_GROUP) {
+      return intentRouter.zipGroupIntent(outcome.entities, { single: true }); 
     } else {
       return new Message("Hi I don't know what you're saying");
     }
@@ -68,14 +73,21 @@ const intentRouter = {
 
 
   //nearby events is dumb. It just responds by asking for your zip code
-  nearbyEventsIntent: () => {
-    return new Promise((resolve, reject) => {
-      resolve(new Message("Where might you be good person?"));
-    });
+  nearbyEventsIntent: (entities) => {
+    const loc = entities.location;
+    if (!loc) {
+      return Promise.resolve(new Message("What's your current zipcode?"));
+    }
+
+    const zipCode = loc[0].value; 
+    return meetupService.findEvents(zipCode)
+      .then(data => {
+        return intentRouter._eventsToMessage(data);
+      });
   },
 
   //a zip code intent
-  zipIntent: (entities) => {
+  zipGroupIntent: (entities, opts) => {
     const loc = entities.location;
     if (!loc) {
       return Promise.reject(new Message('Darn. Could not understand your zip code')); 
@@ -83,16 +95,29 @@ const intentRouter = {
 
     //let's just grab the first zip code we find 
     const zipCode = loc[0].value; 
-    return meetupService.getIntent(zipCode)
-      .then(data => intentRouter._groupToMessage(data));
+    return meetupService.findGroups(zipCode)
+      .then(data => intentRouter._groupToMessage(data, opts));
   },
 
-  _groupToMessage: (groupsList) => {
-    const text = groupsList
-      .map(g => g.name)
-      .join("\n"); 
+  //for now just return 1 group
+  _groupToMessage: (groupsList, opts) => {
+    if (opts && opts.single) {
+      const group = groupsList[0];
+      thing_id = group.id;
+      return new Message(group.name);
+    }
 
-    return new Message(text);
+    const groups = groupsList
+      .map(g => g.name) 
+      .join("\n\n");
+
+    return new Message(groups);
+  },
+
+  _eventsToMessage: (eventsList) => {
+    const event = eventsList.results[0];
+    thing_id = event.id;
+    return new Message(event.name);
   }
 
 };
