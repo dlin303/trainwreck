@@ -32,6 +32,8 @@ entities can sometimes be an empty object
   }]
 }
 */
+
+let thing_id;
 const intentRouter = {
   getIntent: (witResponse) => {
     return new Promise((resolve, reject) => {
@@ -55,11 +57,12 @@ const intentRouter = {
    * Processes a single outcome and it's entities.
    */
   processIntent: (outcome) => {
+    console.log(outcome);
     const intent = outcome.intent;
     if (intent === intents.NEARBY_EVENTS) {
       return intentRouter.nearbyEventsIntent(outcome.entities);
-    } else if (intent === intents.ZIP) {
-      return intentRouter.zipIntent(outcome.entities); 
+    } else if (intent === intents.ZIP_GROUP) {
+      return intentRouter.zipGroupIntent(outcome.entities); 
     } else {
       return new Message("Hi I don't know what you're saying");
     }
@@ -67,14 +70,19 @@ const intentRouter = {
 
 
   //nearby events is dumb. It just responds by asking for your zip code
-  nearbyEventsIntent: () => {
-    return new Promise((resolve, reject) => {
-      resolve(new Message("Where might you be good person?"));
-    });
+  nearbyEventsIntent: (entities) => {
+    const loc = entities.location;
+    if (!loc) {
+      return Promise.resolve(new Message("What's your current zipcode?"));
+    }
+
+    const zipCode = loc[0]; 
+    return meetupService.findEvents(zipCode)
+      .then(data => intentRouter._eventsToMessage(data));
   },
 
   //a zip code intent
-  zipIntent: (entities) => {
+  zipGroupIntent: (entities) => {
     const loc = entities.location;
     if (!loc) {
       return Promise.reject(new Message('Darn. Could not understand your zip code')); 
@@ -82,16 +90,21 @@ const intentRouter = {
 
     //let's just grab the first zip code we find 
     const zipCode = loc[0].value; 
-    return meetupService.getIntent(zipCode)
+    return meetupService.findGroups(zipCode)
       .then(data => intentRouter._groupToMessage(data));
   },
 
+  //for now just return 1 group
   _groupToMessage: (groupsList) => {
-    const text = groupsList
-      .map(g => g.name)
-      .join("\n"); 
+    const group = groupsList[0];
+    thing_id = group.id;
+    return new Message(group.name);
+  },
 
-    return new Message(text);
+  _eventsToMessage: (eventsList) => {
+    const event = eventsList[0];
+    thing_id = event.id;
+    return new Message(event.name);
   }
 
 };

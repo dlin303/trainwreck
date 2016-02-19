@@ -2,7 +2,7 @@
 
 const intents = {
   NEARBY_EVENTS: "nearby_events",
-  ZIP: "zip"
+  ZIP_GROUP: "zip_groups"
 };
 
 module.exports = intents;
