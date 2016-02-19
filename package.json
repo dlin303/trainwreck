@@ -21,6 +21,8 @@
     "bluebird": "^3.3.1",
     "body-parser": "^1.15.0",
     "express": "^4.13.4",
+    "mongodb": "^2.1.7",
+    "mongoose": "^4.4.4",
     "node-wit": "^2.0.0",
     "request-promise": "^2.0.1",
     "twilio": "^2.9.0"
