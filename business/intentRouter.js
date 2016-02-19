@@ -3,6 +3,7 @@
 //3rd
 const Promise = require('bluebird');
 const util = require('util');
+const _ = require('underscore');
 
 //util
 const intents = require('./intents');
@@ -34,7 +35,6 @@ entities can sometimes be an empty object
 }
 */
 
-let thing_id;
 const intentRouter = {
   getIntent: (witResponse) => {
     return new Promise((resolve, reject) => {
@@ -79,7 +79,6 @@ const intentRouter = {
       console.log("phone number", opts.phone);
     }
 
-
     const loc = entities.number;
     if (!loc) {
       return Promise.resolve(new Message('Did you forget to provide a zip code?'));
@@ -88,11 +87,11 @@ const intentRouter = {
     const zipCode = loc[0].value; 
     return meetupService.findEvents(zipCode)
       .then(data => {
-        return intentRouter._eventsToMessage(data);
+        const rsvpableEvent = intentRouter.filterEvents(data.results);
+        return intentRouter._eventsToMessage(rsvpableEvent);
       });
   },
 
-  //a zip code intent
   zipGroupIntent: (entities, opts) => {
     const loc = entities.location;
     if (!loc) {
@@ -109,7 +108,6 @@ const intentRouter = {
   _groupToMessage: (groupsList, opts) => {
     if (opts && opts.single) {
       const group = groupsList[0];
-      thing_id = group.id;
       return new Message(group.name);
     }
 
@@ -120,10 +118,12 @@ const intentRouter = {
     return new Message(groups);
   },
 
-  _eventsToMessage: (eventsList) => {
-    const event = eventsList.results[0];
-    thing_id = event.id;
+  _eventsToMessage: (event) => {
     return new Message(event.name);
+  }, 
+
+  filterEvents: (eventsList) => {
+    return _.find(eventsList, (e) => { return e.rsvpable; });
   }
 
 };
