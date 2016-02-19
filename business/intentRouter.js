@@ -74,9 +74,9 @@ const intentRouter = {
 
   //nearby events is dumb. It just responds by asking for your zip code
   nearbyEventsIntent: (entities) => {
-    const loc = entities.location;
+    const loc = entities.number;
     if (!loc) {
-      return Promise.resolve(new Message("What's your current zipcode?"));
+      return Promise.resolve(new Message('Did you forget to provide a zip code?'));
     }
 
     const zipCode = loc[0].value; 
