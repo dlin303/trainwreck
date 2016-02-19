@@ -16,10 +16,10 @@ const twilioService = require('../services/twilioService');
 //biz
 const intentRouter = require('../business/intentRouter'); 
 
-function getReplyMessage(textMessage) {
+function getReplyMessage(textMessage, opts) {
   return witService.getIntent(textMessage)
     .then(result => intentRouter.getIntent(result))
-    .then(outcomes => intentRouter.processOutcomes(outcomes));
+    .then(outcomes => intentRouter.processOutcomes(outcomes, opts));
 }
 
 
@@ -30,7 +30,8 @@ router.post('/', (req, res) => {
       return;
   }
 
-  getReplyMessage(req.body.text)
+  const opts = { phone: req.body.From };
+  getReplyMessage(req.body.text, opts)
     .then(message => sendSuccess(res, message.text))
     .catch(err => sendServerError(res, undefined, err));
 });
@@ -41,16 +42,19 @@ router.post('/get_message', (req, res) => {
   } else if (!req.body.From) {
     console.error('Received request without From phone number');
   } else {
-    getReplyMessage(req.body.Body)
+    const opts = { phone: req.body.From };
+    getReplyMessage(req.body.Body, opts)
       .then(message => {
           console.log(`Replying to request [ ${req.body.Body} ] from ${req.body.From} with [ ${message.text} ] ...`);
           twilioService.sendTextMessage(message.text, req.body.From);
           console.log(`Reply sent to ${req.body.From}.`);
+          sendSuccess(res, undefined);
         }
       )
-      .catch(err => 
-        console.error(`Error received from processing [ ${req.body.Body} ] from ${req.body.From}`)
-      );
+      .catch(err => {
+        console.error(`Error received from processing [ ${req.body.Body} ] from ${req.body.From}`);
+        sendServerError(res, undefined, err);
+      });
   }
 });
 
