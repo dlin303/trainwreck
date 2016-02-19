@@ -55,6 +55,7 @@ const intentRouter = {
    * Processes a single outcome and it's entities.
    */
   processIntent: (outcome) => {
+    console.log(outcome);
     const intent = outcome.intent;
     if (intent === intents.NEARBY_EVENTS) {
       return intentRouter.nearbyEventsIntent(outcome.entities);
